@@ -55,7 +55,6 @@ function getParams() {
 /* ================= LOAD DATA ================= */
 async function loadData(animate) {
   const { date, sesi } = currentParams;
-
   if (!date || !sesi) return;
 
   const { data, error } = await supabase
@@ -66,19 +65,26 @@ async function loadData(animate) {
 
   if (error || !data) return;
 
-  tableZenix(data.filter(r => r.type === "Zenix").slice(0, 3), animate);
-  tableM6(data.filter(r => r.type === "M6").slice(0, 3), animate);
+  const zenixAll = data.filter(r => r.type === "Zenix");
+  const m6All = data.filter(r => r.type === "M6");
+
+  tableZenix(zenixAll.slice(0, 3), zenixAll.length, animate);
+  tableM6(m6All.slice(0, 3), m6All.length, animate);
+
   charts(data);
 }
 
 /* ================= TABLES ================= */
-function tableZenix(rows, animate) {
+function tableZenix(rows, totalRows, animate) {
   const tb = document.getElementById("zenix-body");
+  const countEl = document.getElementById("zenix-count");
+
   tb.innerHTML = "";
+  countEl.textContent = `(${totalRows} Rows Data)`;
 
   rows
     .slice()
-    .reverse()
+    .reverse() // data terbaru tetap muncul di bawah
     .forEach((r, i) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -86,16 +92,23 @@ function tableZenix(rows, animate) {
         <td>${r.dunlop_stability ?? "-"}</td>
         <td>${r.komp_stability ?? "-"}</td>
       `;
+
+      // animasi hanya untuk data terbaru
       if (animate && i === rows.length - 1) {
         tr.style.animation = "nyundul .5s";
       }
+
       tb.appendChild(tr);
     });
 }
 
-function tableM6(rows, animate) {
+
+function tableM6(rows, totalRows, animate) {
   const tb = document.getElementById("m6-body");
+  const countEl = document.getElementById("m6-count");
+
   tb.innerHTML = "";
+  countEl.textContent = `(${totalRows} Rows Data)`;
 
   rows
     .slice()
@@ -109,9 +122,11 @@ function tableM6(rows, animate) {
         <td>${r.dunlop_noise ?? "-"}</td>
         <td>${r.komp_noise ?? "-"}</td>
       `;
+
       if (animate && i === rows.length - 1) {
         tr.style.animation = "nyundul .5s";
       }
+
       tb.appendChild(tr);
     });
 }
@@ -129,20 +144,18 @@ function charts(rows) {
     .flatMap(r => [r.dunlop_stability, r.komp_stability])
     .filter(v => typeof v === "number");
 
-  const stabMin = stabVals.length ? Math.floor(Math.min(...stabVals)) : 0;
-  const stabMax = stabVals.length ? Math.ceil(Math.max(...stabVals) + 1) : 1;
 
-  bar("chart-stability", dS, kS, stabMin, stabMax, "m/s²");
+  bar("chart-stability", dS, kS, 0, 4, "m/s²");
   bar("chart-comfort", dC, kC, 0, 4, "m/s²");
-  bar("chart-noise", dN, kN, 50, 100, "dB");
+  bar("chart-noise", dN, kN, 40, 100, "dB");
 
   radar(
-    normalizeHighBetter(dS, stabMin, stabMax),
-    normalizeHighBetter(kS, stabMin, stabMax),
+    normalizeHighBetter(dS, 0, 4),
+    normalizeHighBetter(kS, 0, 4),
     normalizeLowBetter(dC, 0, 4),
     normalizeLowBetter(kC, 0, 4),
-    normalizeLowBetter(dN, 50, 100),
-    normalizeLowBetter(kN, 50, 100)
+    normalizeLowBetter(dN, 40, 100),
+    normalizeLowBetter(kN, 40, 100)
   );
 
   setTimeout(() => {
@@ -189,7 +202,7 @@ function radar(dS, kS, dC, kC, dN, kN) {
     credits: { enabled: false },
 
     pane: {
-      size: "90%"   // 🔥 radar tetap besar
+      size: "100%"  
     },
 
     xAxis: {
@@ -204,7 +217,7 @@ function radar(dS, kS, dC, kC, dN, kN) {
         crop: false,
         overflow: "allow",
 
-        distance: -25,          // 🔥 NEGATIF → label masuk lingkaran
+        distance: -50,        
 
         style: {
           fontSize: "13px",
@@ -255,8 +268,6 @@ function radar(dS, kS, dC, kC, dN, kN) {
     chart.redraw();
   }, 100);
 }
-
-
 
 
 /* ================= GRIDSTACK ================= */
