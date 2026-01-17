@@ -61,15 +61,17 @@ async function loadData(animate) {
     .from("responses")
     .select("*")
     .eq("sesi", sesi)
-    .eq("tgl", date);
+    .eq("tgl", date)
+    .order("created_at", { ascending: true });
 
   if (error || !data) return;
 
   const zenixAll = data.filter(r => r.type === "Zenix");
   const m6All = data.filter(r => r.type === "M6");
 
-  tableZenix(zenixAll.slice(0, 3), zenixAll.length, animate);
-  tableM6(m6All.slice(0, 3), m6All.length, animate);
+  // ambil 3 DATA TERAKHIR
+  tableZenix(zenixAll.slice(-3), zenixAll.length, animate);
+  tableM6(m6All.slice(-3), m6All.length, animate);
 
   charts(data);
 }
@@ -82,26 +84,22 @@ function tableZenix(rows, totalRows, animate) {
   tb.innerHTML = "";
   countEl.textContent = `(${totalRows} Rows Data)`;
 
-  rows
-    .slice()
-    .reverse() // data terbaru tetap muncul di bawah
-    .forEach((r, i) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="tdname">${r.name}</td>
-        <td>${r.dunlop_stability ?? "-"}</td>
-        <td>${r.komp_stability ?? "-"}</td>
-      `;
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="tdname">${r.name}</td>
+      <td>${r.dunlop_stability ?? "-"}</td>
+      <td>${r.komp_stability ?? "-"}</td>
+    `;
 
-      // animasi hanya untuk data terbaru
-      if (animate && i === rows.length - 1) {
-        tr.style.animation = "nyundul .5s";
-      }
+    // animasi hanya data PALING BARU (baris terakhir)
+    if (animate && i === rows.length - 1) {
+      tr.style.animation = "nyundul .5s";
+    }
 
-      tb.appendChild(tr);
-    });
+    tb.appendChild(tr);
+  });
 }
-
 
 function tableM6(rows, totalRows, animate) {
   const tb = document.getElementById("m6-body");
@@ -110,25 +108,22 @@ function tableM6(rows, totalRows, animate) {
   tb.innerHTML = "";
   countEl.textContent = `(${totalRows} Rows Data)`;
 
-  rows
-    .slice()
-    .reverse()
-    .forEach((r, i) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="tdname">${r.name}</td>
-        <td>${r.dunlop_comfort ?? "-"}</td>
-        <td>${r.komp_comfort ?? "-"}</td>
-        <td>${r.dunlop_noise ?? "-"}</td>
-        <td>${r.komp_noise ?? "-"}</td>
-      `;
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="tdname">${r.name}</td>
+      <td>${r.dunlop_comfort ?? "-"}</td>
+      <td>${r.komp_comfort ?? "-"}</td>
+      <td>${r.dunlop_noise ?? "-"}</td>
+      <td>${r.komp_noise ?? "-"}</td>
+    `;
 
-      if (animate && i === rows.length - 1) {
-        tr.style.animation = "nyundul .5s";
-      }
+    if (animate && i === rows.length - 1) {
+      tr.style.animation = "nyundul .5s";
+    }
 
-      tb.appendChild(tr);
-    });
+    tb.appendChild(tr);
+  });
 }
 
 /* ================= CHARTS ================= */
