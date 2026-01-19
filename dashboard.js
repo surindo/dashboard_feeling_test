@@ -140,17 +140,17 @@ function charts(rows) {
     .filter(v => typeof v === "number");
 
 
-  bar("chart-stability", dS, kS, 0, 4, "m/s²");
-  bar("chart-comfort", dC, kC, 0, 4, "m/s²");
-  bar("chart-noise", dN, kN, 40, 100, "dB");
+  bar("chart-stability", dS, kS, 0.5, 1.5, "m/s²");
+  bar("chart-comfort", dC, kC, 0.25, 1, "m/s²");
+  bar("chart-noise", dN, kN, 40, 80, "dB");
 
   radar(
-    normalizeHighBetter(dS, 0, 4),
-    normalizeHighBetter(kS, 0, 4),
-    normalizeLowBetter(dC, 0, 4),
-    normalizeLowBetter(kC, 0, 4),
-    normalizeLowBetter(dN, 40, 100),
-    normalizeLowBetter(kN, 40, 100)
+    normalizeHighBetter(dS, 0.5, 1.5),
+    normalizeHighBetter(kS, 0.5, 1.5),
+    normalizeLowBetter(dC, 0.25, 1),
+    normalizeLowBetter(kC, 0.25, 1),
+    normalizeLowBetter(dN, 40, 80),
+    normalizeLowBetter(kN, 40, 80)
   );
 
   setTimeout(() => {
