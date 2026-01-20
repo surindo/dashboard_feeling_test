@@ -270,7 +270,9 @@ const grid = GridStack.init({
   column: 12,
   float: true,
   resizable: { handles: "se" },
-  draggable: { handle: ".card" }
+  draggable: { handle: ".card" },
+  disableDrag: true,
+  disableResize: true
 });
 
 grid.on("resizestop dragstop", () => {
@@ -321,3 +323,4 @@ document.getElementById("fullscreen").onclick = () => {
 
 /* ================= INIT ================= */
 loadData(false);
+
